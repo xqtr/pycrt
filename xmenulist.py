@@ -50,7 +50,8 @@ def menulist(items,x1,y1,x2,y2,hc=15,nc=7,sel=0,sb=scrollbar):
             swritexy(x2,y1+i,sb["loatt"],sb["lochar"])
         y = (selbar * (y2-y1)) // (len(items)-1)
         swritexy(x2,y1+y,sb["hiatt"],sb["hichar"])
-        
+    
+    exit_code = ""
     key = ""
     value = -1
     done = False
@@ -123,8 +124,8 @@ def menulist(items,x1,y1,x2,y2,hc=15,nc=7,sel=0,sb=scrollbar):
             value = selbar
             done = True
         elif key in exit_keys:
-            exit_key = key
-            doen = True
+            exit_code = key
+            done = True
         
             
     if exit_code == "":

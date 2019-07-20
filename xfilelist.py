@@ -141,7 +141,7 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
             done = True
         elif key in exit_keys:
             exit_key = key
-            doen = True
+            done = True
         
             
     if exit_code == "":
