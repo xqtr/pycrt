@@ -38,7 +38,11 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
     global exit_code
     
     if os.path.isfile(filename) == False: Return
-    
+    key = ""
+    value = -1
+    done = False
+    sel = 0
+    ys = 0
     def updatebar():
         if sb["enable"] == False: Return
         for i in range(0,y2-y1+1):
@@ -53,13 +57,8 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
             s = s[ys:ys+x2-x1]
         else:
             s = s.ljust(ys+x2-x1, " ")[ys:ys+x2-x1]
+            #s = (s[ys:ys+x2-x1]+" "*(ys+x2-x1)).strip()
         return s
-    
-    key = ""
-    value = -1
-    done = False
-    sel = 0
-    ys = 0
     
     fh = open(filename, "r")
     items = fh.readlines()
@@ -80,13 +79,14 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
         y = top
         while y1+y-top<=y2:
             if y<len(items):
-                line = items[y].strip()+" "
+                #line = items[y].strip()+" "
+                line = items[y].rstrip('\n')
                 line=parseline(line)
                 writexy(x1,y1+y-top,tc,line)
             else:
                 writexy(x1,y1+y-top,tc," ".ljust(x2-x1, " ")[:x2-x1])
             y += 1
-        writexy(x1,y1+selbar-top,sc,parseline(items[selbar].strip()+" "))
+        writexy(x1,y1+selbar-top,sc,parseline(items[selbar].rstrip('\n')+" "))
         updatebar()
         gotoxy(1,25)
         

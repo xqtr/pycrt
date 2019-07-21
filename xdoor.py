@@ -73,14 +73,16 @@ class door:
         
     def readdoor(self,directory):
         res = False
-        PATH=directory+os.sep+'DOOR.SYS'
-        if os.path.isfile(PATH) and os.access(PATH, os.R_OK):
-            self.readdoorsys(PATH)
-            return str('door')
         PATH=directory+os.sep+'door32.sys'
         if os.path.isfile(PATH) and os.access(PATH, os.R_OK):
             self.readdoor32sys(PATH)
             return str('door32')           
+        else:    
+          PATH=directory+os.sep+'DOOR.SYS'
+          if os.path.isfile(PATH) and os.access(PATH, os.R_OK):
+              self.readdoorsys(PATH)
+              return str('door')
+        
         return res
         
 #Usage Example, using the PyCRT Unit

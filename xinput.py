@@ -34,8 +34,9 @@ cs_upper = " QWERTYUIOPASDFGHJKLZXCVBNM"
 cs_lower = " qwertyuiopasdfghjklzxcvbnm"
 cs_symbols = " ~-=!@#$%^&*()_+[]}{;:'\"\|,<.>/?"
 cs_printable = cs_lower+cs_upper+cs_symbols+cs_numbers
-cs_email = cs+numbers+cs_lower+cs_upper+"@."
+cs_email = cs_numbers+cs_lower+cs_upper+"@."
 cs_email = cs_email.replace(" ", "")
+cs_www = cs_numbers+cs_upper+cs_lower+"/-.:"
 
 def datevalid(date_text):
     try:
@@ -151,9 +152,7 @@ def input(x,y,att,fillatt,chars,length,maxc,fc,default):
     res = default
     key = ""
     while key != "#enter":
-        gotoxy(x,y)
-        
-        swrite(fc*length)
+        swritexy(x,y,fillatt,fc*length)
         #writexy(x,y,fillatt,fc*length)
         writexy(x,y,att,res[pos:length+pos])
         gotoxy(x+len(res[pos:length+pos]),y)
@@ -175,9 +174,16 @@ def input(x,y,att,fillatt,chars,length,maxc,fc,default):
                 pos = 0
         elif key == "#ctrly":
             res = ""
+        elif key == "#enter":
+            exit_code = "#enter"
         elif key in exit_keys:
             exit_code = key
+            swritexy(x,y,fillatt,fc*length)
+            writexy(x,y,fillatt,res[:length])
+            return res
             break
+    swritexy(x,y,fillatt,fc*length)
+    writexy(x,y,fillatt,res[:length])
     return res
 
 def passinput(x,y,att,fillatt,chars,length,maxc,fc,pc,default):
@@ -227,6 +233,8 @@ def passinput(x,y,att,fillatt,chars,length,maxc,fc,pc,default):
         elif key == "#ctrly":
             res = ""
             pas = ""
+        elif key == "#enter":
+            exit_code = "#enter"
         elif key in exit_keys:
             exit_code = key
             break
@@ -267,6 +275,8 @@ def getyesno(x,y,trueat,falseat,offat,default):
     falseat : color in byte value for the Yes button
     default : True/False to begin with 
     """
+    global exit_code
+    exit_code = ""
     key = ""
     val = {0:'No ',1:'Yes'}
     res = default
@@ -278,10 +288,13 @@ def getyesno(x,y,trueat,falseat,offat,default):
             writexy(x+3,y,falseat,val[res])
         gotoxy(1,25)
         key = readkey()
-        if key == "#left" or key == "#right" or key == "#space" or key == "#up" \
-        or key == "#down":
-            res = not res      
-    return res
+        if key == "#left" or key == "#right" or key == "#space":
+            res = not res
+        elif key in exit_keys:
+            exit_code = key
+            return None
+            break
+    return val[res].lower().strip(" ")
 
 
 def getyesnocancel(x,y,trueat,offat,default):
@@ -291,6 +304,8 @@ def getyesnocancel(x,y,trueat,offat,default):
     falseat : color in byte value for the Yes button
     default : True/False to begin with 
     """
+    global exit_code
+    exit_code = ""
     key = ""
     val = {1:' No ',0:' Yes ',2:' Cancel '}
     res = default
@@ -304,14 +319,17 @@ def getyesnocancel(x,y,trueat,offat,default):
             writexy(x+9,y,trueat,val[res])
         gotoxy(1,25)
         key = readkey()
-        if key == "#left" or key == "#down": 
+        if key == "#left": 
             res -= 1
-        if key == "#right" or key == "#up" or key == "#space":
+        elif key == "#right" or key == "#space":
             res += 1
-        if res >2:
+        elif res >2:
             res = 0
-        if res < 0:
+        elif res < 0:
             res = 2
+        elif key in exit_keys:
+            exit_code = key
+            break
         
     if res == 0:
         return "yes"
@@ -319,4 +337,3 @@ def getyesnocancel(x,y,trueat,offat,default):
         return "no"
     elif res == 2:
         return "cancel"
-    return res
