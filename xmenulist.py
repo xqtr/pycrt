@@ -54,6 +54,8 @@ def menulist(items,x1,y1,x2,y2,hc=15,nc=7,sel=0,sb=scrollbar):
             y = (selbar * (y2-y1)) // (len(items)-1)
         swritexy(x2,y1+y,sb["hiatt"],sb["hichar"])
     
+    if len(items)<1:
+      return -1
     exit_code = ""
     key = ""
     value = -1
