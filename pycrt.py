@@ -578,6 +578,10 @@ def readkey():
                 ch = "#left"
             elif ch[2] == "K" or ch[2]=="F":
                 ch = "#end"
+            elif ch[2] == "V":
+                ch = "#pgup"
+            elif ch[2] == "U":
+                ch = "#pgdn"
     
     termios.tcsetattr(fdInput, termios.TCSADRAIN, termAttr)
     return ch
