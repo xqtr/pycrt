@@ -576,6 +576,8 @@ def readkey():
                 ch = "#right"
             elif ch[2] == "D":
                 ch = "#left"
+            elif ch[2] == "K" or ch[2]=="F":
+                ch = "#end"
     
     termios.tcsetattr(fdInput, termios.TCSADRAIN, termAttr)
     return ch
