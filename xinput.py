@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# -*- coding: CP437 -*-
+
 
 # ------------------------------------------------------------------------
 # this file is part of the pycrt project // github.com/xqtr/pycrt 
@@ -24,6 +24,7 @@
 from pycrt import *
 from datetime import datetime
 
+scrollbar = {"enable":True,"hichar":"▓","lochar":"░","hiatt":7,"loatt":8}
 exit_keys = []
 exit_code = ""
 
@@ -337,3 +338,189 @@ def getyesnocancel(x,y,trueat,offat,default):
         return "no"
     elif res == 2:
         return "cancel"
+        
+def dirslash(d):
+    if d[:-1]!=os.sep:
+        d = d+os.sep
+    return d
+    
+def backdir(d):
+    s = d
+    if s[:-1] == os.sep:
+        s = s[:-1]
+    s = s.split(os.sep)
+    val = os.sep
+    for i in range(1,len(s)-1):
+      val = val +os.sep+ s[i]
+    
+    return val[1:]
+        
+def dirselect(current,x1,y1,x2,y2,hc=15,nc=7,sel=0,sb=scrollbar):
+    folder = current
+  
+    """
+    Displays a menu with lightbar, to select from
+    items   : list of items to display
+    x1,x2,
+    y1,y2   : box area to display the menu
+    hc      : Highlight/On color
+    nc      : Normal text/off color
+    sel     : default value to begin with.
+    sb      : a dictionary, with values to display a scrollbar in the 
+              right side of the menu
+    """
+    global exit_keys
+    global exit_code
+    
+    def updatebar():
+        if sb["enable"] == False: Return
+        for i in range(0,y2-y1+1):
+            swritexy(x2,y1+i,sb["loatt"],sb["lochar"])
+        if len(items) < 2:
+            y = 0
+        else:
+            y = (selbar * (y2-y1)) // (len(items)-1)
+        swritexy(x2,y1+y,sb["hiatt"],sb["hichar"])
+    
+    items = []
+    items = [f.name for f in os.scandir(folder) if f.is_dir() ]
+    items.append("..")
+    items.sort()
+    if len(items)<1:
+      return -1
+    exit_code = ""
+    key = ""
+    value = ""
+    done = False
+    if sel <= len(items):
+        top = sel-(y2-y1)
+        if top < 1: top = 0
+    else:
+        top = 0
+    if sel <= len(items):
+        selbar = sel
+    else:
+        selbar = 0
+    
+    while done == False:
+        #writexy(1,1,7,str(top)+"/"+str(selbar)+"/"+str(len(items)))
+        
+        y = top
+        if len(folder) > x2-x1:
+          writexy(x1,y1,hc,folder[x2-x1:])
+        else:
+          writexy(x1,y1,hc,folder.ljust(x2-x1," ")[:x2-x1])
+        gotoxy(x1,y1+1)
+        while y1+1+y-top<=y2:
+            if y<len(items):
+                writexy(x1,y1+1+y-top,nc,items[y].ljust(x2-x1, " ")[:x2-x1])
+            else:
+                writexy(x1,y1+1+y-top,nc," ".ljust(x2-x1, " ")[:x2-x1])
+            y += 1
+        writexy(x1,y1+1+selbar-top,hc,items[selbar].ljust(x2-x1, " ")[:x2-x1])
+        #writexy(3,23,7,items[selbar].ljust(75," "))
+        updatebar()
+        gotoxy(1,25)
+        
+        key = readkey()
+        
+        if key == "#up":
+            selbar=selbar-1
+            if selbar < 1:
+                selbar = 0
+            if selbar < top:
+                top = selbar
+        elif key == "#pgup":
+            selbar = selbar - (y2-y1-1)
+            if selbar < 0:
+                selbar = 0
+                top = 0
+            else:
+                top = top - (y2-y1-1)
+                if top < 0:
+                    top = 0
+        elif key == "#pgdn":
+            selbar = selbar+(y2-y1-1)
+            if selbar > len(items)-1:
+                selbar = len(items)-1
+            top = top+(y2-y1)
+            if top > len(items)-1-(y2-y1-1):
+                top = len(items)-1-(y2-y1-1)
+                if top < 0:
+                    top = 0
+        elif key == "#end":
+            selbar=len(items)-1
+            if len(items)-(y2-y1)-1 > 0:
+                top = len(items)-(y2-y1-1)-1
+            else:
+                top = 0
+        elif key == "#home":
+            selbar=0
+            top = 0
+        elif key == "#down": 
+            selbar=selbar+1
+            if selbar > len(items)-1:
+                selbar = len(items)-1
+            if selbar > top+y2-y1-1:
+                top += 1
+        elif key == "#enter":
+            if items[selbar] == "..":
+                folder = backdir(folder)
+            else:
+                folder = dirslash(folder)+items[selbar]
+            items.clear()
+            selbar = 0
+            top = 0
+            items = [f.name for f in os.scandir(folder) if f.is_dir() ]
+            items.append("..")
+            items.sort()
+        elif key == "#ins" or key == "#ctrld" or key == "#f10":
+            value = dirslash(folder)
+            exit_code = "#ins"
+            done = True
+        elif key in exit_keys:
+            exit_code = key
+            value = ""
+            done = True
+        
+    return value
+  
+
+# function to make a lightbar menu, in which each item has different position
+# high/low attributes, can be selected with arrow keys, but also with hotkey
+
+
+# to create an item use this function  
+def baradditem(x,y,low,high,lowtext,hightext,key,code):
+  return {'x':x,'y':y,'low':low,'high':high,'textlow':lowtext,'texthigh':hightext, 'key':key, 'code':code}
+  
+# to add it, use a list like this:
+# item1 = baradditem(10,10,7,14,'|01[h]|03ello','|17|15[H]ELLO','hH','hello')
+# items.append(item1)
+  
+def lightbarmenu(items,sel=0):
+  res = ""
+  while True:
+    for i in range(len(items)):
+      writexypipe(items[i]['x'],items[i]['y'],items[i]['low'],mcilen(items[i]['textlow']),items[i]['textlow'])
+    writexypipe(items[sel]['x'],items[sel]['y'],items[sel]['high'],mcilen(items[sel]['texthigh']),items[sel]['texthigh'])
+    writexy(1,1,11,str(len(items)))
+    ans = readkey()
+    if ans == "#up" or ans == "#left":
+      sel -= 1
+      if sel < 0: sel = len(items) - 1
+    elif ans == "#down" or ans == "#right":
+      sel += 1
+      if sel > len(items) - 1 : sel = 0
+    elif ans == "#esc":
+      res == "#esc"
+      break
+    elif ans == "#enter":
+      res = items[sel]['code']
+      break
+    else:
+      for i in range(len(items)):
+        if ans in items[i]['key']:
+          res = items[i]['code']
+          return res
+  return res

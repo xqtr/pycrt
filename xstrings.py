@@ -104,14 +104,17 @@ def strwrap(Str,width):
 def delete(txt,x1,length):
     return txt[:x1-1]+txt[x1-1+length:]
     
-def MCIlen(Str):
-    while True:
-        A = pos('|', Str);
-        if (A > 0) and (A < len(Str) - 1):
-            Str = strdelete (Str, A, 3)
-        else:
-            break
-    return len(Str)
+def mcilen(s):
+  res = s
+  while True:
+    a = res.find('|')
+    if a >= 0:  #and a <=len(res)-2:
+      if res[a+1].isdigit() and res[a+2].isdigit():
+        res = res[:a]+res[a+3:]
+      else:
+        res=res.replace('|','x',1)
+    else: break
+  return len(res)
     
 def initials(fullname):
   xs = (fullname)
