@@ -37,7 +37,7 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
     global exit_keys
     global exit_code
     
-    if os.path.isfile(filename) == False: Return
+    if os.path.isfile(filename) == False: return
     key = ""
     value = -1
     done = False
@@ -60,21 +60,7 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
             #s = (s[ys:ys+x2-x1]+" "*(ys+x2-x1)).strip()
         return s
     
-    fh = open(filename, "r")
-    items = fh.readlines()
-    fh.close()
-    
-    if sel <= len(items):
-        top = sel
-    else:
-        top = 0
-    if sel <= len(items):
-        selbar = sel
-    else:
-        selbar = 0
-    
-    while done == False:
-        #writexy(1,1,7,str(top)+"/"+str(selbar)+"/"+str(len(items)))
+    def drawpage():
         gotoxy(x1,y1)
         y = top
         while y1+y-top<=y2:
@@ -86,23 +72,56 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
             else:
                 writexy(x1,y1+y-top,tc," ".ljust(x2-x1, " ")[:x2-x1])
             y += 1
-        writexy(x1,y1+selbar-top,sc,parseline(items[selbar].rstrip('\n')+" "))
+        baron(selbar)
+    
+    def baroff(i):
+        writexy(x1,y1+i-top,tc,parseline(items[i].rstrip('\n')+" "))
+        
+    def baron(i):
+        writexy(x1,y1+i-top,sc,parseline(items[i].rstrip('\n')+" "))
+    
+    fh = open(filename, "r")
+    #items = fh.readlines()
+    items = fh.read().splitlines()
+    fh.close()
+    
+    if sel <= len(items):
+        top = sel
+    else:
+        top = 0
+    if sel <= len(items):
+        selbar = sel
+    else:
+        selbar = 0
+        
+    drawpage()
+    
+    while done == False:
+        #writexy(1,1,7,str(top)+"/"+str(selbar)+"/"+str(len(items)))
+        gotoxy(x1,y1)
+        y = top
+        
         updatebar()
         gotoxy(1,25)
         
         key = readkey()
         
         if key == "#up":
+            baroff(selbar)
             selbar=selbar-1
             if selbar < 1:
                 selbar = 0
+            baron(selbar)
             if selbar < top:
                 top = selbar
+                drawpage()
         elif key == "#left":
             ys -= 1
             if ys<0: ys = 0
+            drawpage()
         elif key == "#right":
             ys += 1
+            drawpage()
         elif key == "#pgup":
             selbar = selbar - (y2-y1)
             if selbar < 0:
@@ -112,6 +131,7 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
                 top = top - (y2-y1)
                 if top < 0:
                     top = 0
+            drawpage()
         elif key == "#pgdn":
             selbar = selbar+(y2-y1)
             if selbar > len(items)-1:
@@ -121,21 +141,29 @@ def viewtextfile(filename,x1,y1,x2,y2,tc=7,sc=15,sb=scrollbar):
                 top = len(items)-1-(y2-y1)
                 if top < 0:
                     top = 0
+            drawpage()
         elif key == "#end":
             selbar=len(items)-1
             if len(items)-(y2-y1)-1 > 0:
                 top = len(items)-(y2-y1)-1
             else:
                 top = 0
+            drawpage()
         elif key == "#home":
             selbar=0
             top = 0
+            drawpage()
         elif key == "#down": 
+            baroff(selbar)
             selbar=selbar+1
             if selbar > len(items)-1:
                 selbar = len(items)-1
+                baron(selbar)
+            else:
+                baron(selbar)
             if selbar > top+y2-y1:
                 top += 1
+                drawpage()
         elif key == "#enter":
             value = selbar
             done = True
