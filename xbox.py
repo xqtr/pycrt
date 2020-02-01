@@ -40,12 +40,15 @@ box12=(c[7]+'þ',c[7]+'ß',c[15]+'þ',c[7]+'Ý',c[8]+'Þ',c[15]+'þ',c[8]+'Ü',c[8]+'þ'
 
 def ansibox(x1,y1,x2,y2,box):
     gotoxy(x1,y1)
-    swrite(box[0]+box[1]*(x2-x1-1)+box[2])
+    #swrite(box[0]+box[1]*(x2-x1-1)+box[2])
+    write(box[0]+box[1]*(x2-x1-1)+box[2])
     gotoxy(x1,y2)
-    swrite(box[5]+box[6]*(x2-x1-1)+box[7])
+    #swrite(box[5]+box[6]*(x2-x1-1)+box[7])
+    write(box[5]+box[6]*(x2-x1-1)+box[7])
     for i in range(y2-y1-1):
         gotoxy(x1,y1+1+i)
-        swrite(box[3]+box[8]*(x2-x1-1)+box[4])
+        #swrite(box[3]+box[8]*(x2-x1-1)+box[4])
+        write(box[3]+box[8]*(x2-x1-1)+box[4])
 
 def preview_boxes():
     ansibox(2,2,10,7,box1)

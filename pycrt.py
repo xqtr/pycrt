@@ -29,13 +29,14 @@ import tty,termios
 
 pathchar = os.sep
 pathsep  = os.sep
+utf = False
 
 # to change color you can use it like this:  print(colors[7])
 # 0 - 15  : foreground colors
 # 16 - 23 : background colors
 
 colors = {
-'r':"reset='\033[0m",
+ 'r':"\033[0m",
   0:"\033[0;30m",
   1:"\033[0;34m",
   2:"\033[0;32m",
@@ -212,6 +213,7 @@ def textbackground(c):
     textattr_str = curfg + curbg
     sys.stdout.write(curbg)
     sys.stdout.flush()
+  
 
 # takes a color byte value 0-255 and returns it as an ansi string
 # example: textattr2str(31), will give the string for white text in
@@ -243,15 +245,16 @@ def swritexy(x,y,at,s):
 
 # writes text, with no new lines, in the current color        
 def write(s):
-    sys.stdout.write(textattr_str)
-    sys.stdout.write(str(s))
-    sys.stdout.flush()
+    if utf:
+        sys.stdout.write(textattr_str)
+        sys.stdout.write(str(s))
+        sys.stdout.flush()
+    else:
+        swrite(s)
 
 # same as above but with newline added    
 def writeln(st):
-    sys.stdout.write(textattr_str)
-    sys.stdout.write(str(st)+'\n')
-    sys.stdout.flush()
+    write(st+'\n')
 
 
 def cursorup(n):
@@ -326,9 +329,10 @@ def settextattr(a):
 # writes text at position x,y with color a    
 def writexy(x,y,a,s):
     gotoxy(x,y)
-    sys.stdout.write(textattr2str(a))
-    sys.stdout.write(s)
-    sys.stdout.flush()
+    write(s)
+    #sys.stdout.write(textattr2str(a))
+    #sys.stdout.write(s)
+    #sys.stdout.flush()
 
     
 def writepipe(txt):

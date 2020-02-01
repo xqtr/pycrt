@@ -21,6 +21,10 @@
 import os
 import textwrap
 
+def byte2str(v):
+    s=''.join(str(v))
+    return s[2:-1]
+
 def lower(s):
     return s.lower()
   
